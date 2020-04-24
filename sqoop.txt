@@ -1,0 +1,670 @@
+-> support in relational databases;
+-> once working with data pipelines invloves injestion of data,etc.
+-> sqoop is replaced by spark now but sqoop is still used and might be replaced in future with spark which will also support data pipeline and can be connected directly using java jar file
+
+-> mysql -u <username> -h <hostname> -p;
+-> select * from <tablename> LIMIT 10;						// to get only 10 records
+* in mysql there can be n numbers of databases and can be used for diff apps.
+-> ls -ltr /usr/share/java/mysql-connector-java.jar 				// default location of jar file
+
+** Open book certification pgm Hortonworks or Cloudera
+# sqoop command line help
+-> sqoop help
+-> sqoop version
+-> sqoop help eval		// pass argument
+-> sqoop help import		// datail about import cmd
+-> sqoop help list-databeses
+-> sqoop list-databases or sqoop-list-databses \
+--connect jdbc:mysql://localhost:3306 \
+--username root \
+--password abcd
+
+-> sqoop help list-tables	
+-> sqoop list-tables \
+--connect jdbc:mysql://localhost/<databasename> \
+--username root \
+-P
+<enter password>
+
+#running quiries using eval command
+-> sqoop help eval
+-> sqoop eval \
+--connect jdbc:mysql:///localhost/<databasename> \
+--username root \
+--password abcd \
+--query "select * from <tablename> LIMIT 10"
+
+or
+
+-> sqoop eval \
+--connect jdbc:mysql:///localhost/<databasename> \
+--username root \
+--password abcd \
+-e "describe <tablename>"
+
+# logs in sqoop generated while running commands
+-> sqoop eval \
+--connect jdbc:mysql:///localhost/<databasename> \
+--username root \
+--password abcd \
+--query "select * from <tablename> LIMIT 10"
+
+* we can redirect the logs using python or bash script to anywhere
+
+# redirecting sqoop logs into some file
+-> sqoop eval \
+--connect jdbc:mysql:///localhost/<databasename> \
+--username root \
+--password abcd \
+--query "select * from <tablename> LIMIT 10" 1>query.out 2>query.err
+0-> std input
+1-> std output
+2-> std error
+
+* check using vim
+
+----------------------------------------------------------------------------
+-> sqoop help import
+-> sqoop import \
+--connect jdbc:mysql:///localhost/<databasename> \
+--username root \
+--password abcd\
+--query "select * from <tablename> LIMIT 10"
+
+----------------------------------------------------------------------------
+
+# import cmd with specific directory 
+
+* check diractory exist or not on HDFS using hadoop fs -ls /path
+-> sqoop import \
+--connect jdbc:mysql:///localhost/<databasename> \
+--username root \
+--password abcd \
+--table <tablename>						// check in help description i.e basically to read only
+--target-dir <path on HDFS/(createbasedirectory/filename)>
+
+hadoop fs -ls /path on HDFS/createdpath
+-------------------------------------------------------------------------------
+
+# warehouse directory no need to specify full HDFS path 
+
+-> sqoop import \
+--connect jdbc:mysql:///localhost/<databasename> \
+--username root \
+--password abcd \
+--table <tablename> \
+--warehouse-dir <path of HDFS only>				// files will be created with source file name
+----------------------------------------------------------------------------------
+
+# appending file and overwriting data in folder
+-> sqoop import \
+--connect jdbc:mysql://localhost \
+--username root \
+--password abcd \
+--table <tablename> \
+--warehouse-dir </path> \
+--append
+
+*check that new files will be added now
+-----------------------------------------------------------------------------------------
+# to delete directory
+-> sqoop import \
+--connect jdbc:mysql://localhost \
+--username root \
+--password abcd \
+--table <tablename> \
+--warehouse-dir </path> \
+--delete-target-dir
+
+-----------------------------------------------------------------------------------------
+
+# execution flow in sqoop
+-> sqoop import \
+--connect jdbc:mysql://localhost/<databasename> \
+--username root \
+--password abcd \
+--table <tablename> \
+--warehouse-dir </path> \
+--delete-target-dir
+
+* see the logs to undestand flow
+----------------------------------------------------------------------------------------
+# checking primary key
+
+-> sqoop import \
+--connect jdbc:mysql://localhost \
+--username root \
+--password abcd \
+--table <tablename> \
+--warehouse-dir </path> \
+-e "DESCRIBE <tablename>"
+----------------------------------------------------------------------------------------
+
+# controllling mappers
+
+-> sqoop import \
+--connect jdbc:mysql://localhost \
+--username root \
+--password abcd \
+--table <tablename> \
+--warehouse-dir </path> \
+--delete-target-dir \						// to delete the already exixsting directory files
+--num-mappers or -m  <number>					//number of mappers to specify
+
+* by default mapper is 4 so only 4 files will be created in specific directory
+-----------------------------------------------------------------------------------------
+
+# other file format in sqoop by default store in text file
+
+-> sqoop help import
+-> sqoop import \
+--connect jdbc:mysql://localhost \
+--username root \
+--password abcd \
+--table <tablename> \
+--warehouse-dir </path> \
+--as-squencefile or --as-parquefile,etc
+----------------------------------------------------------------------------------------
+
+# using avro tools for validating data is transported successfully in avro file
+
+-> sqoop import \
+--connect jdbc:mysql://localhost \
+--username root \
+--password abcd \
+--table <tablename> \
+--warehouse-dir </path> \
+--as-avrodatafile
+
+-----------------------------------------------------------------------------------------
+				
+hadoop fs -get /hdfs path .				// to download file form HDFS to local system
+	
+-> avro-tools						// will show the available fucntion to convert avro file
+-> avro-tools get-schema <filename>
+-> avro-tools tojson <filename>.avro >> <filename>
+----------------------------------------------------------------------------------------
+
+# compressing data
+
+-> sqoop help import
+-> sqoop import \
+--connect jdbc:mysql://localhost \
+--username root \
+--password abcd \
+--table <tablename> \
+--warehouse-dir </path> \
+--delete-target-dir \
+--compress
+
+* by default gz extension file obtaied means gzip algorithm
+** go to conf file of hadoop /etc/hadoop and edit core-site.xml file in this file whatever the compression algorithm is defined we can use that only else we might get error
+<property>
+<name>io.compression.codecs</name>
+<value>org.apache.hadoop.io.compress.GzipCodec,org.apache.hadoop.io.compress.DefaultCodec,org.apache.hadoop.io.compress.SnappyCodec</value>
+</property>
+
+<property>
+<name>io.file.buffer.size</name>
+<value>131072</value>
+</property>
+
+-> sqoop import \
+--connect jdbc:mysql://localhost \
+--username root \
+--password abcd \
+--table <tablename> \
+--warehouse-dir </path> \
+--delete-target-dir \
+--compress \
+--compression-codec <copy the algorithm path form core-site.xml file> [say] org.apache.hadoop.io.compress.SnappyCodec
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# specifying columns in sqoop
+
+-> sqoop help import
+-> sqoop eval \
+--connect jdbc:mysql://localhost:3306/<databasename>
+--username root \
+--password abcd \
+-e "DESCRIBE <tablename>
+
+-> sqoop import \
+--connect jdbc:mysql://localhost:3306/<databasename>
+--username root \
+--password abcd \
+--table <tablename>
+--columns <column_name1>,<column_name2>,... \
+--warehouse-dir /hdfs path \
+--delete-target-dir
+
+------------------------------------------------------------------------------------------------------------
+
+# using boundary command in sqoop
+
+-> sqoop import \
+--connect jdbc:mysql://localhost:3306/<databasename>
+--username root \
+--password abcd \
+--table <tablename>
+--warehouse-dir /hdfs path \
+--delete-target-dir
+
+* see logs you will see a boundaryValQuery
+
+-> sqoop import \
+--connect jdbc:mysql://localhost:3306/<databasename>
+--username root \
+--password abcd \
+--table <tablename>
+--columns <column_name1>,<column_name2>,... \
+--warehouse-dir /hdfs path \
+--boundary-query "SELECT 1, 172198" \				// to make faster query if we know range then we can hardcode this
+--delete-target-dir
+----------------------------------------------------------------------------------------------------------
+
+# filtering data using where clause i.e removing unnecessary data
+
+-> sqoop help import
+-> sqoop eval \
+--connect jdbc:mysql://localhost:3306/<databasename>
+--username root \
+--password abcd \
+-e "SELECT * from <tablename> LIMIT 10"
+
+-> sqoop eval \
+--connect jdbc:mysql://localhost:3306/<databasename>
+--username root \
+--password abcd \
+-e "SELECT * from <tablename> where <column_name> IN ('COMPLETE','CLOSED') AND <column_name2> LIKE '2013-08%'"
+
+-> sqoop import \
+--connect jdbc:mysql://localhost:3306/<databasename>
+--username root \
+--password abcd \
+--table <tablename>
+--columns <column_name1>,<column_name2>,... \
+--warehouse-dir /hdfs path \
+--delete-target-dir
+--where "only filter criteria" i.e "<column_name> IN ('COMPLETE','CLOSED') AND <column_name2> LIKE '2013-08%'"
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+# filtering data using bysplit
+-> sqoop import \
+--connect jdbc:mysql://localhost:3306/<databasename>
+--username root \
+--password abcd \
+--table <tablename>
+--columns <column_name1>,<column_name2>,... \
+--warehouse-dir /hdfs path \
+--delete-target-dir
+**check the apache doc
+-------------------------------------------------------------------------
+
+# importing query result
+-> sqooop help import
+-> sqoop import \
+--connect jdbc:mysql://localhost/<databasename> \
+--username root \
+--password abcd \
+--query "select <columnname>,count(1) <columnname> from <tablename> group by <columnname> \
+--target-dir /hdfs path \
+--delete-target-dir
+
+** fail because it need some more paramters like splitby or reduce number of mappers
+-> sqoop import \
+--connect jdbc:mysql://localhost/<databasename> \
+--username root \
+--password abcd \
+--query "select <columnname>,count(1) <columnname> from <tablename> group by <columnname> \
+--target-dir /hdfs path \
+--split-by <column_name>					//as similar to group by
+--delete-target-dir
+** again fail due to $ condition
+
+-> sqoop import \
+--connect jdbc:mysql://localhost/<databasename> \
+--username root \
+--password abcd \
+--query "select <columnname>,count(1) <columnname> from <tablename> where $CONDITIONS group by <columnname> \
+--target-dir /hdfs path \
+--split-by <column_name>					//as similar to group by
+--delete-target-dir
+-m 1								// use if data is low
+
+---------------------------------------------------------------------------------------------------------------------
+
+# text splitting with primary key in sqoop and composite keys
+
+-> sqoop eval \
+--connect jdbc:mysql://localhost/databasename \
+--username root \
+--password abcd \
+-e "show tables"
+
+-> sqoop eval \
+--connect jdbc:mysql://localhost/databasename \
+--username root \
+--password abcd \
+-e "describe tablename"
+
+-> sqoop import \
+--connect jdbc:mysql://localhost/databasename \
+--username root \
+--password abcd \
+--table <tablename> \
+--warehouse-dir /path \
+--delete-target-dir
+
+* failed due to some properties see logs; 
+
+-> sqoop import \			
+-D<copy_paste_the_property> \					# which was reason for failure
+--connect jdbc:mysql://localhost/databasename \
+--username root \
+--password abcd \
+--table <tablename> \
+--warehouse-dir /path \
+--delete-target-dir
+
+* if case-sensitive warining comes in there will be duplicacy of results so it will show Strongly recommed to use integral split column
+------------------------------------------------------------------------------------------
+
+# Dealing with tables without primary keys
+
+-> sqoop import \
+--connect jdbc:mysql://localhost/databasename \
+--username root \
+--password abcd \
+--table <tablename> \
+--warehouse-dir /path \
+--split-by <column_name> \			# carefully  		
+--delete-target-dir 
+-m 1 #if needed
+
+-----------------------------------------------------------------------------------------------
+
+# autoreset mappers to one			# comfortable with no primary key if have primary key will use 4 for parallel
+
+-> sqoop import \
+--connect jdbc:mysql://localhost/databasename \
+--username root \
+--password abcd \
+--table <tablename> \
+--warehouse-dir /path \
+--delete-target-dir \
+--autoreset-to-one-mapper
+
+-> sqoop import \
+--connect jdbc:mysql://localhost/databasename \
+--username root \
+--password abcd \
+--table <tablename> \
+--warehouse-dir /path \
+--delete-target-dir \
+--autoreset-to-one-mapper
+--num-mapper 8			           # it will be ignore if primary doesnt exist and will use mappper=8 if exist
+* although we specify the number of mappers it automaitcally be ignored and use one mapper if primary key deosnt exist.
+-----------------------------------------------------------------------------------------------------------
+
+# delimeter and text file.
+
+-> sqoop import \
+--connect jdbc:mysql://localhost/databasename \
+--username root \
+--password abcd \
+--table <tablename> \
+--warehouse-dir /path \
+--delete-target-dir \
+--fields-terminated-by '|' \
+--lines-terminated-by ';' 
+** using : is not good idea because of time data format (hr:min:sec)
+* check the file on hdfs
+
+-----------------------------------------------------------------------------------------------------------
+
+# managing null values
+
+-> sqoop import \
+--connect jdbc:mysql://localhost/<databasename> \
+--username root \
+--password abcd \
+--warehouse-dir /<path> \
+--delete-target-dir \
+--null-non-string "-1"			# -1 = null values <see help>
+
+----------------------------------------------------------------------------------------------
+
+# import-all-tables
+
+-> sqoop help import-all-tables
+
+-> sqoop import-all-tables \
+--connect jdbc:mysql://localhost/<databasename> \
+--username root \
+--password abcd \
+--warehouse-dir /<path> \
+--autoreset-to-one-mapper \
+--num-maper 2
+
+______________________________________________________________________________________________________
+Importing Data into Hive Table
+______________________________________________________________________________________________________
+
+-> on hive shell = DESCRIBE FORMATTED <tablename>;
+-> create database if not exists <databasename>
+-> sqoop help create-hive-table
+-> sqoop create-hive-table \
+--connnect jdbc:mysql://localhost/<databasename> \
+--username root \
+--password abcd \
+--table <tablename> \
+--hive-database <hive_databasename>
+
+--------------------------------------------------------------------------------------------------------
+
+-> sqoop import \
+--connnect jdbc:mysql://localhost/<databasename> \
+--username root \
+--password abcd \
+--table <tablename> \
+--hive-import \					# this will create the table if not exists also
+--hive-database <hive_databasename>
+
+* this will fail due to some error so u can use port number with protocol also
+
+-> sqoop import \
+--connnect jdbc:mysql://localhost:3306/<databasename> \
+--username root \
+--password abcd \
+--table <tablename> \
+--hive-import \					# this will create the table if not exists also
+--hive-database <hive_databasename>
+
+* if you check the data on hdfs you find it not available this is because of 
+staging concept in hive we two stages: at database  and then directory
+
+
+--------------------------------------------------------------------------------------------------------------
+
+# managing hive-table with out error
+
+-> sqoop import \
+--connnect jdbc:mysql://localhost/<databasename> \
+--username root \
+--password abcd \
+--table <tablename> \
+--hive-import \					# this will create the table if not exists also
+--hive-database <hive_databasename>
+
+--------------------------------------------------------------------------------------------
+
+# hive field delimeters
+
+-> hive --database <database_name>
+* create table on hive --- create table tname as select * from othertname
+
+
+___________________________________________________________________________________________________________________
+			| SQOOP EXPORT |
+___________________________________________________________________________________________________________________
+
+# before exporting we need to process them
+
+-> external connection with hive database; hive --database <databasename>
+-> sqoop help export          
+hive> create table daily_revenue(order_date string, revenue float) row format delimited fields terminated by ',';
+hive> insert into daily_revenue
+	select order_date, round(sum(order_item_subtotal),2) AS revenue
+        from orders JOIN order_items
+	ON order_id = order_item_order_id	
+	where order_status IN('COMPLETE,'CLOSED')
+	group by order_date;
+hive> select * from daily_revenue;
+hive> describe formatted <tablename>; 			# to get hdfs file location
+
+
+# create table on mysql either manually or using sqoop eval cmd
+# -> sqoop export \
+--connect jdbc:mysql://localhost:3306/<databasename> \
+--username root \
+--password abcd \
+--export-dir /<hdfs_path> \
+--table <tablename>					# mysql tablename	
+
+
+-> sqoop eval \
+--connect jdbc:mysql://localhost/databasename \
+--username root \
+--password abcd \
+-e "select * from <tablename> LIMIT 10"
+
+-> sqoop eval \
+--connect jdbc:mysql://localhost/databasename \
+--username root \
+--password abcd \
+-e "select count(1) from <tablename>"
+
+or gotomysql check there also
+--------------------------------------------------------------------------
+
+# number of mappers
+
+-> sqoop export \
+--connect jdbc:mysql://localhost:3306/<databasename> \
+--username root \
+--password abcd \
+--export-dir /<hdfs_path> \
+--table <tablename>						# mysql tablename	
+--num-mappers 1
+* fail is number of records are more
+
+** to see failure result on browser see logs u will an http url.
+
+# clear staging table
+-> sqoop export \
+--connect jdbc:mysql://localhost:3306/<databasename> \
+--username root \
+--password abcd \
+--export-dir /<hdfs_path> \
+--table <tablename>						# mysql tablename	
+--num-mappers 1
+
+_______________________________________________________________________________________________
+
+# sqoop jobs
+
+-> sqoop help job
+-> sqoop job --list
+-> sqoop job --exec <jobid>
+
+-> sqoop import \
+--connect jdbc:mysql://localhost:3306/<databasename> \
+--username root \
+--password-file /filepath_full \
+--table <tablename> \
+-e "select * from <tablename>"  
+
+** will fail beacuse of protocol not specified for loading file
+-> sqoop import \
+--connect jdbc:mysql://localhost:3306/<databasename> \
+--username root \
+--password-file file:///filepath_full \
+--table <tablename> \
+-e "select * from <tablename>"  
+
+# Sqoop job Creation
+
+-> sqoop job --create <job_name>
+-- import \							# after -- there is a space
+--connect jdbc:mysql://localhost:3306/<databasename> \
+--username root \
+--password-file file:///filepath_full \
+--table <tablename> 
+--warehouse-dir /hdfspath \
+--delete-target-dir
+
+-> sqoop job --list <job_id or name>
+-> sqoop job --show <job_id or name>
+-> sqoop job --exec <job_id or name>
+______________________________________________________________________
+incermental import
+______________________________________________________________________
+
+-> sqoop import \
+--connect retail_user \
+--username root \
+--password abcd \
+--table <tname> \
+--warehouse-dir <path> \
+--append \
+--where "order_id > 68883"
+	
+# incremental import with append mode
+
+-> sqoop import \
+--connect retail_user \
+--username root \
+--password abcd \
+--table <tname> \
+--warehouse-dir <path> \
+--check-column <column_name> \
+--incremental append \
+--last-value 68883
+* if no record found it will show error
+--------------------------------------------------------------------
+
+# creating incremental job
+
+-> sqoop job \
+--create my_inc_job \
+-- import \
+--connect retail_user \
+--username root \
+--password abcd \
+--table <tname> \
+--warehouse-dir <path> \
+--check-column <column_name> \
+--incremental append \
+--last-value 0
+
+---------------------------------------------------------------------------
+# excecuting job
+-> sqoop job --exec <job_name or id>
+-> sqoop job --list
+-> sqoop job --show <job name or id>
+----------------------------------------------------------------------------
+
+# incremental mode using last modified
+
+-> sqoop import \
+--connect jdbc:mysql://lcalhost:3306/<db>\
+--username root \
+--password abcd \
+--table <tname> \
+--warehouse-dir <path> \
+--check-column <column_name> \
+--incremental append \
+--last-value "yyyy-mn-dd hr:min:sec"
