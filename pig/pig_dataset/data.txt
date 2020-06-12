@@ -1,0 +1,6 @@
+mohan,IT,55000
+raju,MEC,40000
+kiran,ECE,45000
+prateek,EEE,52000
+sanju,IT,57000
+sam,CVL,90000
