@@ -1,0 +1,22 @@
+# query to execute -> go to hive shell and create table of dataset
+
+create table <tablename>(bike_name string,bike_features struct<engine_type:string,cc:float,power,float,gears:int>) row format delimited fields terminated by '\t' collection items terminated by ',' tblproperties("skip.header.line.count"="1");
+
+describe <tablename>;
+
+# loading data from local system
+
+load data local inpath '<path of system >' into table <tablename>;
+
+# loading data from hdfs
+
+
+load data inpath '<path of hdfs >' into table <tablename>;
+
+# checking the loaded data in table
+
+select * from <tablename>;
+
+# execute basic queries for analysis......
+ex-> select bike_features.engine_type from <tablename>;
+     select bike_features.engine_type from <tablename> where bike_name='Honda';

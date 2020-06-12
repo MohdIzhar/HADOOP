@@ -1,0 +1,6 @@
+BIKE_NAME	BIKE_FEATURES(enginetype,cc,power,gear)
+Yahama	Aircoolled,149.0,14.0,0
+Hero	Aircoolled,155.0,14.8,0
+TVS	Aircoolled,159.0,15.4,0
+Suzuki	Dtsi-Aircoolled,149.0,15.6,0
+Honda	Fuel-injection,223.0,20.25,0
