@@ -1,0 +1,10 @@
+----------------------------------------
+# COMMON TO BOTH NAMENODE AND DATANODE #
+----------------------------------------
+
+<configuration>
+  <property>
+    <name>fs.default.name</name>
+    <value>hdfs://IP of Namenode:9000</value>
+  </property>
+</configuration>
