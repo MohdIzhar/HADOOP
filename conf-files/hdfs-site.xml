@@ -1,0 +1,37 @@
+**ON NAMENODE SIDE OR MASTER**
+
+<configuration>
+  <property>
+    <name>dfs.name.dir</name>
+    <value>/namedir</value>
+  </property>
+</configuration>
+
+
+**CHANGING THE BLOCK SIZE** *entry on namenode hdfs-site.xml*
+
+These entry must be in configuration block only 
+
+<property>
+    <name>dfs.block.size</name>
+    <value>134217728</value>              
+    <final>true</true>
+</property>
+
+**CHANGING THE REPLICATION** *namenode hdfs-site.xml*
+
+
+These entry must be in configuration block only
+<property>
+  <name>dfs.replication</name>
+  <value>2</value>
+</property>
+
+**ON DATANODES SIDE OR SLAVES**
+
+<configuration>
+  <property>
+    <name>dfs.data.dir</name>
+    <value>/datadir</value>
+  </property>
+</configuration>
