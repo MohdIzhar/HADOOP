@@ -1,4 +1,6 @@
-**ON NAMENODE SIDE OR MASTER**
+------------------------------
+# ON NAMENODE SIDE OR MASTER #
+------------------------------
 
 <configuration>
   <property>
@@ -7,9 +9,10 @@
   </property>
 </configuration>
 
-
-**CHANGING THE BLOCK SIZE** *entry on namenode hdfs-site.xml*
-
+---------------------------
+# CHANGING THE BLOCK SIZE #
+---------------------------
+* entry in namenode hdfs-site.xml
 These entry must be in configuration block only 
 
 <property>
@@ -18,16 +21,20 @@ These entry must be in configuration block only
     <final>true</true>
 </property>
 
-**CHANGING THE REPLICATION** *namenode hdfs-site.xml*
-
-
+----------------------------
+# CHANGING THE REPLICATION #
+----------------------------
+* entry in namenode hdfs-site.xml*
 These entry must be in configuration block only
+
 <property>
   <name>dfs.replication</name>
   <value>2</value>
 </property>
 
-**ON DATANODES SIDE OR SLAVES**
+-------------------------------
+# ON DATANODES SIDE OR SLAVES #
+-------------------------------
 
 <configuration>
   <property>
