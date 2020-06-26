@@ -1,0 +1,104 @@
+------------------------------
+# ON JOBTRACKER SIDE #
+------------------------------
+
+<configuration>
+  <property>
+    <name>mapred.job.tracker</name>
+    <value>IP of JOB TRACKER:9002</value>
+  </property>
+</configuration>
+
+
+------------------------------
+# ON TASKTRACKER SIDE #
+------------------------------
+
+<configuration>
+  <property>
+    <name>mapred.job.tracker</name>
+    <value>IP of JOB TRACKER:9002</value>
+  </property>
+</configuration>
+
+----------------------------
+# JOB SCHEDULING IN HADOOP #
+----------------------------
+
+BY default FIFO scheduler is used in “Apache Hadoop”
+We can change to “Fair Scheduler” in mapred
+Step 1:
+# vim /etc/hadoop/mapred-site.xml 
+
+Step 2:
+In mapred-site.xml of job tracker site.xml 
+
+<property>
+  <name> mapred.jobtracker.taskScheduler</name>
+  <value>org.apache.hadoop.mapred.FairScheduler</value>
+</property> 
+
+Identify the pool configuration file :
+
+<property>
+  <name> mapred.fairscheduler.allocation.file</<name>
+  <value>/etc/hadoop/fair-scheduler.xml</value>
+</property>
+
+Step 3:
+# vim /etc/hadoop/fair-scheduler.xml
+
+<allocations> 
+  <pool name="tech"> 
+  <minMaps>10</minMaps>
+  <minReduces>5</<minReduces>
+  <maxRunningJobs>2</maxRunningJobs> 
+</pool>
+
+<pool name="hr">
+ <minMaps>10</minMaps>
+ <minReduces>5</<minReduces>
+</pool>
+
+<user name="izhar">
+  <maxRunningJobs>2</maxRunningJobs>
+</user>
+</allocations>
+
+Step 4:
+# Stop Jobtracker
+
+Step 5:
+# Run Job with pool name "tech"
+
+-> hadoop jar /usr/share/hadoop/hadoop-examples-1.2.1.jar wordcount -Dpool.name=tech /input /output3
+
+
+--------------------------------------------------------------------------
+# HOW TO CHANGE THE PORT NUMBER  OF MANAGEMENT HTTP PROTOCOL OF NAMENODE #
+--------------------------------------------------------------------------
+
+# vim /etc/hadoop/hdfs-site.xml
+
+<property>
+  <name>dfs.http.address</name>
+  <value>IP of NAMNODE:50111</value>
+  <final>true</final>
+</property>
+
+
+-------------------------------------
+# HOW TO CHANGE THE HEART BEAT TIME #
+-------------------------------------
+
+* Go to DATANODE
+
+# vim /etc/hadoop/hdfs-site.xml
+
+<property>
+  <name>dfs.heartbeat.interval</name>
+  <value>10</value>                       // default is 3 sec to keep datanode alive its sends signal to namenode
+</property>
+
+
+
