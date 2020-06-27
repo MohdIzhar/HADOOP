@@ -1,14 +1,10 @@
 # To configure hive on hadoop
 
 -> wget http://www-us.apache.org/dist/hive/hive-2.1.0/apache-hive-2.1.0-bin.tar.gz
-
 -> tar xvzf apache-hive-2.1.0-bin.tar.gz 
-
 -> mv apache-hive-2.1.0-bin /hive
-
 -> vi ~/.bashrc
 add the following lines to this file:
-
 export HIVE_HOME=/hive
 export HIVE_CONF_DIR=/hive/conf
 export PATH=$HIVE_HOME/bin:$PATH
@@ -79,7 +75,7 @@ javax.jdo.option.NontransactionalRead = true
 
 javax.jdo.option.ConnectionDriverName = org.apache.derby.jdbc.EmbeddedDriver
 
-javax.jdo.option.ConnectionURL = jdbc:derby://hadoop1:1527/metastore_db;create = true
+javax.jdo.option.ConnectionURL = jdbc:derby://**NamenodeIP**:1527/metastore_db;create = true
 
 javax.jdo.option.ConnectionUserName = APP
 
@@ -91,17 +87,11 @@ javax.jdo.option.ConnectionPassword = mine
 -> schematool -dbType derby -initSchema
 
 *if the following output is obtained it means success else troubleshoot:*
-
 SLF4J: Class path contains multiple SLF4J bindings.
-
 SLF4J: Found binding in [jar:file:/usr/local/apache-hive-2.1.0-bin/lib/log4j-slf4j-impl-2.4.1.jar!/org/slf4j/impl/StaticLoggerBinder.class]
-
 SLF4J: Found binding in [jar:file:/usr/local/hadoop/share/hadoop/common/lib/slf4j-log4j12-1.7.5.jar!/org/slf4j/impl/StaticLoggerBinder.class]
-
 SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
-
 SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
-
 Metastore connection URL:	 jdbc:derby:;databaseName=metastore_db;create=true
 
 Metastore Connection Driver :	 org.apache.derby.jdbc.EmbeddedDriver
@@ -109,11 +99,8 @@ Metastore Connection Driver :	 org.apache.derby.jdbc.EmbeddedDriver
 Metastore connection User:	 APP
 
 Starting metastore schema initialization to 2.1.0
-
 Initialization script hive-schema-2.1.0.derby.sql
-
 Initialization script completed
-
 schemaTool completed
 
 # Now run hive to test
@@ -144,9 +131,9 @@ replace ${system:java.io.tmpdir}/${system:user.name} by /tmp/mydir in hive-site.
     <name>hive.exec.local.scratchdir</name>
     <!--
     <value>${system:java.io.tmpdir}/${system:user.name}</value>
-    -->
+-->
     <value>/tmp/mydir</value>
     <description>Local scratch space for Hive jobs</description>
 </property>
  
-**Now finally run the hive and execute queries**
+ **Now finally run the hive and execute queries**
