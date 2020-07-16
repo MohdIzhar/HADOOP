@@ -1,0 +1,40 @@
+182.236.164.11 			=> ip
+
+-				=> name
+
+-				=> user
+
+[10/Mar/2016:18:20:56]		 => time
+
+method =>	"GET /cart.do?action=addtocart&itemId=EST-15&productId=BS-AG-G09&JSESSIONID=SD6SL8FF10ADFF53101 HTTP 1.1"
+
+200 				=> status
+
+2252				 => byte
+
+"http://www.exploratorystore.io/oldlink?itemId=EST-15"			 => url
+
+agent =>		"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_4) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.46 Safari/536.5"
+
+->  data = load '/sample_log' using PigStorage(' ') as (ipaddress:chararray, name:chararray, user:chararray, time:chararray, zone:chararray, method:chararray, uri:chararray, proto:chararray, status:chararray, bytes:chararray, link:chararray, agent:chararray);
+-> dump data;
+
+-> grouped_data = group data by ipaddress;
+->  dump grouped_data;
+
+->  groupByLink = group data by link;
+-> dump groupByLink;
+
+->  pageHits = foreach groupByLink generate flatten(group), COUNT(data.link) as pageCount;
+-> dump pageHits;
+
+-> orderedList= order pageHits by pageCount DESC;
+-> dump orderedList;
+
+-> topPage= LIMIT orderedList 1;
+-> dump topPage;
+
+-> store pageHits into 'TotalHitsCount';
+-> store topPage into 'MaxPageHits';
+-> store data into 'CSVDataForHive' using PigStorage(',');
+
